@@ -1,0 +1,14 @@
+services:
+  clash: 
+    build:
+      context: .
+      dockerfile: Dockerfie-stream
+    restart: unless-stopped
+    volumes:
+      - ${PWD}/config.yaml:/root/.config/clash/config.yaml
+      - /path/to/certs:/etc/nginx/certs:ro
+      - ${PWD}/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "127.0.0.1:9987:7890"  # mix port (http/socks5)
+      - "9988:7891"  # https port
+      - "127.0.0.1:9989:8080"  # web ui

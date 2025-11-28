@@ -1,0 +1,2 @@
+FROM laoyutang/clash-and-dashboard:latest
+RUN apk add nginx-mod-stream

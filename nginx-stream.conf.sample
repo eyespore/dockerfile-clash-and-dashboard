@@ -1,0 +1,44 @@
+worker_processes  1;
+
+load_module modules/ngx_stream_module.so;
+
+events {
+    worker_connections  1024;
+}
+
+stream {
+  server {
+    listen 7891 ssl;
+    ssl_certificate certs/fullchain.pem;
+    ssl_certificate_key certs/privkey.pem;
+    proxy_pass localhost:7890;
+  }  
+}
+
+http {
+    include       mime.types;
+    sendfile        on;
+    keepalive_timeout  65;
+
+    server {
+        listen       8080;
+        server_name  localhost;
+
+	default_type 'text/html';
+        charset utf-8;
+
+        location / {
+          root /dashboard;
+        }
+
+        location /api {
+          rewrite ^/api(.*)$ $1 break;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+          proxy_pass http://localhost:9090; 
+        }
+
+       error_page  404              /404.html;
+       error_page  500 502 503 504  /50x.html;
+    }
+}

@@ -1,0 +1,6 @@
+foreground = yes
+[clash-backend]
+accept = 443
+connect = clash:7890
+cert = /certs/fullchain.pem
+key = /certs/privkey.pem

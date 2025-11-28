@@ -1,0 +1,19 @@
+services:
+  clash: 
+    image: laoyutang/clash-and-dashboard:latest
+    restart: unless-stopped
+    volumes:
+      - ${PWD}/config.yaml:/root/.config/clash/config.yaml
+      - /home/pineclone/certs:/etc/nginx/certs:ro
+    ports:
+      - "127.0.0.1:9987:7890"  # mix port (http/socks5)
+      - "127.0.0.1:9989:8080"  # web ui
+  
+  stunnel:
+    image: chainguard/stunnel
+    restart: unless-stopped
+    volumes:
+      - /path/to/certs:/certs:ro
+      - ${PWD}/stunnel.conf:/etc/stunnel/stunnel.conf:ro
+    user: 1000:1000
+    ports: ['9988:443']

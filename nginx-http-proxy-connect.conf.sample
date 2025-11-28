@@ -1,0 +1,56 @@
+worker_processes  1;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    sendfile        on;
+    keepalive_timeout  65;
+
+    server {
+        listen       8080;
+        server_name  localhost;
+        default_type 'text/html';
+        charset utf-8;
+
+        location / {
+          root /dashboard;
+        }
+
+        location /api {
+          rewrite ^/api(.*)$ $1 break;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "upgrade";
+          proxy_pass http://localhost:9090; 
+        }
+
+       error_page  404              /404.html;
+       error_page  500 502 503 504  /50x.html;
+    }
+
+    server {
+      listen 3128 ssl;
+
+      # dns resolver used by forward proxying
+      resolver 8.8.8.8;
+      ssl_certificate certs/pi5.pineclone.cc/fullchain.pem;
+      ssl_certificate_key certs/pi5.pineclone.cc/privkey.pem;
+      ssl_session_cache shared:SSL:1m;
+
+      # forward proxy for CONNECT requests
+      proxy_connect;
+      proxy_connect_allow            443 563;
+      proxy_connect_connect_timeout  10s;
+      proxy_connect_data_timeout     10s;
+      # proxy_connect_address 127.0.0.1:7890;
+
+      # defined by yourself for non-CONNECT requests
+      # Example: reverse proxy for non-CONNECT requests
+      location / {
+        proxy_pass http://$host;
+        proxy_set_header Host $host;
+      }
+  }
+}
